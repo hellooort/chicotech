@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아임웹 미리보기 (테스트)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; background: #fff; color: #333; }
+    .toolbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: #1e293b; color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .toolbar label { font-weight: 600; }
+    .toolbar select, .toolbar input, .toolbar button {
+      padding: 6px 10px; border-radius: 6px; border: 1px solid #475569;
+      background: #334155; color: #fff; font-size: 13px;
+    }
+    .toolbar button { background: #3b82f6; border-color: #3b82f6; cursor: pointer; font-weight: 600; }
+    .toolbar button:hover { background: #2563eb; }
+    .toolbar button.danger { background: #ef4444; border-color: #ef4444; }
+    .toolbar .status { margin-left: auto; color: #94a3b8; }
+    .preview-frame {
+      margin-top: 56px; transition: all 0.3s;
+    }
+    .preview-frame.mobile {
+      max-width: 390px; margin-left: auto; margin-right: auto;
+      border-left: 2px solid #e2e8f0; border-right: 2px solid #e2e8f0;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* 아임웹 기본 스타일 시뮬레이션 */
+    .container-fluid { padding: 0 15px; }
+    .row { display: flex; flex-wrap: wrap; }
+    .col-md-10 { flex: 0 0 100%; max-width: 100%; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .table thead th { font-size: 14px; color: #555; }
+    .text-primary { color: #337ab7; text-decoration: none; }
+    .text-brand { color: #337ab7; text-decoration: none; font-size: 13px; }
+    .text-bold { font-weight: bold; }
+    .text-right { text-align: right; }
+    .im-body-size { font-size: 14px; }
+    .im-body-size-140 { font-size: 22px; }
+    .im-body-size-90 { font-size: 13px; }
+    .im-flex { display: flex; }
+    .im-items-center { align-items: center; }
+    .margin-right-xl { margin-right: 12px; }
+    .blocked { display: block; }
+    .opacity-70 { opacity: 0.7; }
+    .price { color: #333; }
+    .head { padding: 20px; background: #fafafa; margin-bottom: 20px; border-radius: 8px; }
+    .tabled { display: table; }
+    .full-width { width: 100%; }
+    .table-cell { display: table-cell; }
+    .vertical-middle { vertical-align: middle; }
+    .nick { padding-left: 15px; }
+    .nick span { font-size: 16px; font-weight: 600; }
+    .img-circle { border-radius: 50%; }
+    .text-15 { font-size: 15px; margin-top: 4px; }
+    .hidden-xs, .hidden-sm { }
+    .hidden-lg, .hidden-md { display: none; }
+    .btn { padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; display: inline-block; margin-top: 4px; }
+    .btn-primary { background: #337ab7; color: #fff; }
+    .section_info { margin-bottom: 8px; }
+    .im-icon { font-style: normal; }
+    .im-ico-circle-arrow-right::after { content: ' →'; }
+
+    @media (max-width: 767px) {
+      .hidden-xs, .hidden-sm { display: none !important; }
+      .hidden-lg, .hidden-md { display: block !important; }
+      .im-body-size-140 { font-size: 18px; }
+      .head { padding: 15px; }
+      .nick span { font-size: 14px; }
+      .table th, .table td { padding: 10px 8px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 툴바 -->
+  <div class="toolbar">
+    <label>미리보기</label>
+    <select id="viewMode">
+      <option value="pc">PC</option>
+      <option value="mobile">모바일 (390px)</option>
+    </select>
+    <button onclick="reloadScript()">스크립트 새로고침</button>
+    <button class="danger" onclick="clearProgress()">진행현황 초기화</button>
+    <span class="status" id="statusText">스크립트 로드 대기 중...</span>
+  </div>
+
+  <!-- 아임웹 마이페이지 시뮬레이션 -->
+  <div class="preview-frame" id="previewFrame">
+    <div class="shop-content mypage">
+      <div class="container-fluid">
+        <div class="row show-grid">
+          <div class="col-md-10 col-sm-12">
+            <!-- 프로필 영역 -->
+            <div class="head bg-bright">
+              <div class="my-theme tabled full-width">
+                <div class="img-view table-cell vertical-middle">
+                  <div class="tabled full-width">
+                    <div class="tumbs table-cell vertical-middle">
+                      <div class="img-circle" style="width: 65px; height: 65px; background: #ddd url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23999%22><path d=%22M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z%22/></svg>') center/60% no-repeat;"></div>
+                    </div>
+                    <div class="nick text-default-dark table-cell vertical-middle">
+                      <span>테스트 고객 님 안녕하세요.</span>
+                      <div class="body_font_color_50 text-15">누적 구매금액: 15,000원</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 주문 조회 헤더 -->
+            <div style="margin-bottom: 20px;">
+              <div class="im-body-size-140 text-bold hidden-xs hidden-sm">주문 조회</div>
+            </div>
+
+            <!-- 주문 목록 (실제 아임웹 구조 그대로) -->
+            <div class="table-wrap" id="shop_mypage_orderlist">
+              <table class="table no-margin shop-table shop-table2">
+                <!-- 주문 1: DB에 등록된 주문 -->
+                <thead class="item-subject">
+                  <tr>
+                    <th class="hidden-xs hidden-sm im-body-size">
+                      <div class="im-flex im-items-center">
+                        <span class="margin-right-xl">주문번호</span>
+                        <a class="text-primary" href="/shop_mypage/?m2=order&amp;idx=202603190210021&amp;order_no=202603190210021">202603190210021 <i class="im-icon im-ico-circle-arrow-right"></i></a>
+                      </div>
+                    </th>
+                    <th class="text-right im-body-size" colspan="2">
+                      <span class="hidden-xs hidden-sm">주문일자 </span>
+                      <span>2026-03-19</span>
+                      <a href="/shop_mypage/?m2=order&amp;idx=202603190210021&amp;order_no=202603190210021" class="text-brand hidden-lg hidden-md">주문 상세보기 <i class="im-icon im-ico-circle-arrow-right"></i></a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody style="background: #fff;">
+                  <tr class="content">
+                    <td>
+                      <div style="display:flex; align-items:center; gap:12px; padding: 4px 0;">
+                        <div style="width:80px;height:80px;background:#f0f0f0;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:12px;">상품 이미지</div>
+                        <div>
+                          <div class="im-body-size text-bold">테스트 상품 A</div>
+                          <div class="im-body-size-90">
+                            <span class="blocked opacity-70">옵션: 기본</span>
+                            <span class="blocked price">15,000원 / 1개</span>
+                            <span class="text-default opacity-70 im-body-size text-bold hidden-lg hidden-md hidden-sm" style="margin-bottom: 5px;">구매확정</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-right hidden-xs hidden-sm" style="vertical-align:middle;">
+                      <div class="section_info"><span class="opacity-70">구매확정</span></div>
+                    </td>
+                  </tr>
+                </tbody>
+
+                <!-- 주문 2: DB에 미등록 주문 -->
+                <thead class="item-subject">
+                  <tr>
+                    <th class="hidden-xs hidden-sm im-body-size">
+                      <div class="im-flex im-items-center">
+                        <span class="margin-right-xl">주문번호</span>
+                        <a class="text-primary" href="/shop_mypage/?m2=order&amp;idx=999999999&amp;order_no=999999999">999999999 <i class="im-icon im-ico-circle-arrow-right"></i></a>
+                      </div>
+                    </th>
+                    <th class="text-right im-body-size" colspan="2">
+                      <span class="hidden-xs hidden-sm">주문일자 </span>
+                      <span>2026-03-18</span>
+                      <a href="/shop_mypage/?m2=order&amp;idx=999999999&amp;order_no=999999999" class="text-brand hidden-lg hidden-md">주문 상세보기 <i class="im-icon im-ico-circle-arrow-right"></i></a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody style="background: #fff;">
+                  <tr class="content">
+                    <td>
+                      <div style="display:flex; align-items:center; gap:12px; padding: 4px 0;">
+                        <div style="width:80px;height:80px;background:#f0f0f0;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:12px;">상품 이미지</div>
+                        <div>
+                          <div class="im-body-size text-bold">테스트 상품 B</div>
+                          <div class="im-body-size-90">
+                            <span class="blocked price">8,000원 / 2개</span>
+                            <span class="text-default opacity-70 im-body-size text-bold hidden-lg hidden-md hidden-sm" style="margin-bottom: 5px;">배송중</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-right hidden-xs hidden-sm" style="vertical-align:middle;">
+                      <div class="section_info"><span class="opacity-70">배송중</span></div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 뷰 모드 전환 (PC / 모바일)
+    document.getElementById('viewMode').addEventListener('change', function () {
+      var frame = document.getElementById('previewFrame');
+      if (this.value === 'mobile') {
+        frame.classList.add('mobile');
+      } else {
+        frame.classList.remove('mobile');
+      }
+    });
+
+    // 진행현황 초기화
+    function clearProgress() {
+      window.__orderProgressLoaded = false;
+      document.querySelectorAll('[data-order-progress]').forEach(function (el) {
+        el.closest('tr').remove();
+      });
+      document.querySelectorAll('.order-progress-wrap').forEach(function (el) {
+        el.closest('tr')?.remove();
+      });
+      document.getElementById('statusText').textContent = '초기화 완료 - 스크립트 새로고침 클릭';
+    }
+
+    // 스크립트 새로고침
+    function reloadScript() {
+      clearProgress();
+      var old = document.getElementById('inject-script');
+      if (old) old.remove();
+
+      var s = document.createElement('script');
+      s.id = 'inject-script';
+      s.src = '/imweb-inject.js?t=' + Date.now();
+      s.onload = function () {
+        document.getElementById('statusText').textContent = '스크립트 로드 완료 (' + new Date().toLocaleTimeString() + ')';
+      };
+      document.body.appendChild(s);
+    }
+
+    // 초기 로드
+    reloadScript();
+  </script>
+</body>
+</html>

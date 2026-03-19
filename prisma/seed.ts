@@ -7,12 +7,11 @@ async function main() {
   // 기본 진행 단계 생성
   const steps = [
     { order: 1, name: "주문접수" },
-    { order: 2, name: "결제확인" },
-    { order: 3, name: "제작중" },
-    { order: 4, name: "제작완료" },
-    { order: 5, name: "배송준비" },
-    { order: 6, name: "배송중" },
-    { order: 7, name: "배송완료" },
+    { order: 2, name: "제작중" },
+    { order: 3, name: "제작완료" },
+    { order: 4, name: "배송준비" },
+    { order: 5, name: "배송중" },
+    { order: 6, name: "배송완료" },
   ];
 
   for (const step of steps) {
