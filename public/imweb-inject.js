@@ -2,11 +2,15 @@
  * 아임웹 마이페이지 주문 진행현황 삽입 스크립트
  * 
  * 사용법: 아임웹 관리자 → 페이지 → 마이페이지 → 커스텀 코드(HTML)에 삽입
- * <script src="https://your-domain.vercel.app/imweb-inject.js"></script>
+ * <script src="https://chicotech.vercel.app/imweb-inject.js"></script>
  */
 (function () {
+  if (window.__orderProgressLoaded) return;
+  window.__orderProgressLoaded = true;
+
   // ===== 설정 =====
   var API_BASE = "https://chicotech.vercel.app";
+  var processedOrders = {};
 
   // ===== 스타일 삽입 =====
   var style = document.createElement("style");
@@ -61,16 +65,6 @@
       font-size: 12px;\n\
       color: #64748b;\n\
     }\n\
-    .order-progress-loading {\n\
-      font-size: 12px;\n\
-      color: #94a3b8;\n\
-      padding: 8px 0;\n\
-    }\n\
-    .order-progress-error {\n\
-      font-size: 12px;\n\
-      color: #ef4444;\n\
-      padding: 8px 0;\n\
-    }\n\
     @keyframes pulse-dot {\n\
       0%, 100% { opacity: 1; }\n\
       50% { opacity: 0.4; }\n\
@@ -90,32 +84,13 @@
   ";
   document.head.appendChild(style);
 
-  // ===== 주문번호 추출 =====
-  function extractOrderNumbers() {
-    var links = document.querySelectorAll('a[href*="order_no="]');
-    var orders = {};
-
-    links.forEach(function (link) {
-      var url = link.getAttribute("href");
-      var match = url.match(/order_no=([^&]+)/);
-      if (match) {
-        var orderNo = match[1];
-        if (!orders[orderNo]) {
-          orders[orderNo] = link;
-        }
-      }
-    });
-
-    return orders;
-  }
-
   // ===== 진행현황 HTML 생성 =====
   function createProgressHTML(data) {
     var stepsHTML = data.progress
       .map(function (step, i) {
         var dot = '<span class="order-step-dot ' + step.status + '"></span>';
         var name = '<span class="order-step-name ' + step.status + '">' + step.name + "</span>";
-        var arrow = i < data.progress.length - 1 ? '<span class="order-progress-arrow">›</span>' : "";
+        var arrow = i < data.progress.length - 1 ? '<span class="order-progress-arrow">\u203A</span>' : "";
         return '<span class="order-progress-step">' + dot + name + "</span>" + arrow;
       })
       .join("");
@@ -123,13 +98,13 @@
     var info = "";
     if (data.expectedDate) {
       var date = new Date(data.expectedDate);
-      var formatted = (date.getMonth() + 1) + "월 " + date.getDate() + "일";
-      info = '<div class="order-progress-info">예상 완료: ' + formatted + "</div>";
+      var formatted = (date.getMonth() + 1) + "\uC6D4 " + date.getDate() + "\uC77C";
+      info = '<div class="order-progress-info">\uC608\uC0C1 \uC644\uB8CC: ' + formatted + "</div>";
     }
 
     return (
       '<div class="order-progress-wrap">' +
-      '<div class="order-progress-title">진행현황: ' + data.currentStepName + "</div>" +
+      '<div class="order-progress-title">\uC9C4\uD589\uD604\uD669: ' + data.currentStepName + "</div>" +
       '<div class="order-progress-bar">' + stepsHTML + "</div>" +
       info +
       "</div>"
@@ -138,23 +113,21 @@
 
   // ===== API 호출 및 표시 =====
   function fetchAndDisplay(orderNumber, targetElement) {
-    // 로딩 표시
-    var container = document.createElement("div");
-    container.innerHTML = '<div class="order-progress-loading">진행현황 조회 중...</div>';
-
-    // thead 다음(tbody 앞)에 삽입
     var thead = targetElement.closest("thead");
-    if (thead) {
-      var tbody = thead.nextElementSibling;
-      if (tbody) {
-        var row = document.createElement("tr");
-        var cell = document.createElement("td");
-        cell.setAttribute("colspan", "2");
-        cell.appendChild(container);
-        row.appendChild(cell);
-        tbody.insertBefore(row, tbody.firstChild);
-      }
-    }
+    if (!thead) return;
+
+    var tbody = thead.nextElementSibling;
+    if (!tbody) return;
+
+    var container = document.createElement("div");
+    container.setAttribute("data-order-progress", orderNumber);
+
+    var row = document.createElement("tr");
+    var cell = document.createElement("td");
+    cell.setAttribute("colspan", "2");
+    cell.appendChild(container);
+    row.appendChild(cell);
+    tbody.insertBefore(row, tbody.firstChild);
 
     fetch(API_BASE + "/api/public/order/" + encodeURIComponent(orderNumber))
       .then(function (res) { return res.json(); })
@@ -162,27 +135,40 @@
         if (data.success) {
           container.innerHTML = createProgressHTML(data.data);
         } else {
-          container.innerHTML = "";
+          row.remove();
         }
       })
       .catch(function () {
-        container.innerHTML = "";
+        row.remove();
       });
   }
 
   // ===== 실행 =====
   function init() {
-    var orders = extractOrderNumbers();
-    var orderNumbers = Object.keys(orders);
+    var links = document.querySelectorAll('a[href*="order_no="]');
+    var orders = {};
 
+    links.forEach(function (link) {
+      var url = link.getAttribute("href");
+      var match = url.match(/order_no=([^&]+)/);
+      if (match) {
+        var orderNo = match[1];
+        if (!orders[orderNo] && !processedOrders[orderNo]) {
+          orders[orderNo] = link;
+        }
+      }
+    });
+
+    var orderNumbers = Object.keys(orders);
     if (orderNumbers.length === 0) return;
 
     orderNumbers.forEach(function (orderNo) {
+      processedOrders[orderNo] = true;
       fetchAndDisplay(orderNo, orders[orderNo]);
     });
   }
 
-  // DOM 로드 후 실행 (아임웹은 동적 로딩이므로 약간의 딜레이 필요)
+  // DOM 로드 후 1회 실행
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       setTimeout(init, 1000);
@@ -191,21 +177,14 @@
     setTimeout(init, 1000);
   }
 
-  // 주문 목록이 동적으로 추가될 수 있으므로 MutationObserver로 감시
-  var observer = new MutationObserver(function (mutations) {
-    var hasNewOrders = mutations.some(function (m) {
-      return m.addedNodes.length > 0;
-    });
-    if (hasNewOrders) {
-      var existing = document.querySelectorAll(".order-progress-wrap");
-      if (existing.length === 0) {
-        setTimeout(init, 500);
-      }
-    }
-  });
-
+  // 주문 목록이 동적으로 추가될 때 새 주문만 처리
+  var observerTimer = null;
   var orderList = document.getElementById("shop_mypage_orderlist");
   if (orderList) {
+    var observer = new MutationObserver(function () {
+      if (observerTimer) clearTimeout(observerTimer);
+      observerTimer = setTimeout(init, 500);
+    });
     observer.observe(orderList, { childList: true, subtree: true });
   }
 })();
