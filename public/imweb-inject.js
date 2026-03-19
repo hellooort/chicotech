@@ -16,32 +16,32 @@
   var style = document.createElement("style");
   style.textContent = "\n\
     .order-progress-wrap {\n\
-      margin: 12px 0;\n\
-      padding: 16px;\n\
+      margin: 14px 0;\n\
+      padding: 20px;\n\
       background: #f8fafc;\n\
       border-radius: 12px;\n\
       border: 1px solid #e2e8f0;\n\
     }\n\
     .order-progress-title {\n\
-      font-size: 13px;\n\
-      font-weight: 600;\n\
-      color: #334155;\n\
-      margin-bottom: 12px;\n\
+      font-size: 16px;\n\
+      font-weight: 700;\n\
+      color: #1e293b;\n\
+      margin-bottom: 14px;\n\
     }\n\
     .order-progress-bar {\n\
       display: flex;\n\
       align-items: center;\n\
-      gap: 4px;\n\
+      gap: 6px;\n\
       flex-wrap: wrap;\n\
     }\n\
     .order-progress-step {\n\
       display: flex;\n\
       align-items: center;\n\
-      gap: 4px;\n\
+      gap: 6px;\n\
     }\n\
     .order-step-dot {\n\
-      width: 8px;\n\
-      height: 8px;\n\
+      width: 12px;\n\
+      height: 12px;\n\
       border-radius: 50%;\n\
       flex-shrink: 0;\n\
     }\n\
@@ -49,36 +49,74 @@
     .order-step-dot.current { background: #3b82f6; animation: pulse-dot 1.5s infinite; }\n\
     .order-step-dot.pending { background: #cbd5e1; }\n\
     .order-step-name {\n\
-      font-size: 12px;\n\
+      font-size: 15px;\n\
       white-space: nowrap;\n\
     }\n\
     .order-step-name.completed { color: #16a34a; }\n\
-    .order-step-name.current { color: #2563eb; font-weight: 600; }\n\
+    .order-step-name.current { color: #2563eb; font-weight: 700; }\n\
     .order-step-name.pending { color: #94a3b8; }\n\
     .order-progress-arrow {\n\
       color: #cbd5e1;\n\
-      font-size: 10px;\n\
+      font-size: 14px;\n\
       margin: 0 2px;\n\
     }\n\
     .order-progress-info {\n\
-      margin-top: 8px;\n\
-      font-size: 12px;\n\
-      color: #64748b;\n\
+      margin-top: 10px;\n\
+      font-size: 14px;\n\
+      color: #475569;\n\
+    }\n\
+    .order-progress-loading {\n\
+      text-align: center;\n\
+      padding: 16px;\n\
+      font-size: 15px;\n\
+      color: #3b82f6;\n\
+      font-weight: 500;\n\
+    }\n\
+    .order-progress-loading .spinner {\n\
+      display: inline-block;\n\
+      width: 16px;\n\
+      height: 16px;\n\
+      border: 2px solid #bfdbfe;\n\
+      border-top-color: #3b82f6;\n\
+      border-radius: 50%;\n\
+      animation: spin 0.8s linear infinite;\n\
+      vertical-align: middle;\n\
+      margin-right: 8px;\n\
+    }\n\
+    .order-progress-notice {\n\
+      text-align: center;\n\
+      font-size: 15px;\n\
+      font-weight: 500;\n\
+      color: #475569;\n\
+      margin-bottom: 0;\n\
     }\n\
     @keyframes pulse-dot {\n\
       0%, 100% { opacity: 1; }\n\
       50% { opacity: 0.4; }\n\
     }\n\
+    @keyframes spin {\n\
+      to { transform: rotate(360deg); }\n\
+    }\n\
     @media (max-width: 767px) {\n\
       .order-progress-wrap {\n\
-        margin: 8px 12px 12px;\n\
-        padding: 12px;\n\
+        margin: 10px 12px 14px;\n\
+        padding: 16px;\n\
+      }\n\
+      .order-progress-title {\n\
+        font-size: 15px;\n\
       }\n\
       .order-progress-bar {\n\
-        gap: 2px;\n\
+        gap: 4px;\n\
       }\n\
       .order-step-name {\n\
-        font-size: 11px;\n\
+        font-size: 13px;\n\
+      }\n\
+      .order-step-dot {\n\
+        width: 10px;\n\
+        height: 10px;\n\
+      }\n\
+      .order-progress-info {\n\
+        font-size: 13px;\n\
       }\n\
     }\n\
   ";
@@ -121,6 +159,9 @@
 
     var container = document.createElement("div");
     container.setAttribute("data-order-progress", orderNumber);
+    container.innerHTML = '<div class="order-progress-wrap">' +
+      '<div class="order-progress-loading"><span class="spinner"></span>\uACE0\uAC1D\uB2D8\uC758 \uC8FC\uBB38\uC744 \uC870\uD68C\uD558\uB294 \uC911\uC785\uB2C8\uB2E4</div>' +
+      '</div>';
 
     var row = document.createElement("tr");
     var cell = document.createElement("td");
@@ -135,14 +176,14 @@
         if (data.success) {
           container.innerHTML = createProgressHTML(data.data);
         } else {
-          container.innerHTML = '<div class="order-progress-wrap" style="text-align:center;">' +
-            '<div class="order-progress-title" style="margin-bottom:0;">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
+          container.innerHTML = '<div class="order-progress-wrap">' +
+            '<div class="order-progress-notice">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
             '</div>';
         }
       })
       .catch(function () {
-        container.innerHTML = '<div class="order-progress-wrap" style="text-align:center;">' +
-          '<div class="order-progress-title" style="margin-bottom:0;">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
+        container.innerHTML = '<div class="order-progress-wrap">' +
+          '<div class="order-progress-notice">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
           '</div>';
       });
   }
