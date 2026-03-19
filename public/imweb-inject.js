@@ -135,11 +135,15 @@
         if (data.success) {
           container.innerHTML = createProgressHTML(data.data);
         } else {
-          row.remove();
+          container.innerHTML = '<div class="order-progress-wrap" style="text-align:center;">' +
+            '<div class="order-progress-title" style="margin-bottom:0;">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
+            '</div>';
         }
       })
       .catch(function () {
-        row.remove();
+        container.innerHTML = '<div class="order-progress-wrap" style="text-align:center;">' +
+          '<div class="order-progress-title" style="margin-bottom:0;">\uD604\uC7AC \uAD00\uB9AC\uC790\uAC00 \uACE0\uAC1D\uB2D8\uC758 \uC18C\uC911\uD55C \uD30C\uC77C\uC744 \uD655\uC778\uC911\uC785\uB2C8\uB2E4</div>' +
+          '</div>';
       });
   }
 
