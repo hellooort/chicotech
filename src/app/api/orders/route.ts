@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { orderNumber, currentStep, expectedDate, memo } = body;
+    const { currentStep, expectedDate, memo } = body;
+    const orderNumber = body.orderNumber?.trim();
 
     if (!orderNumber) {
       return NextResponse.json(
