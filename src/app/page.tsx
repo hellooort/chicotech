@@ -29,7 +29,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/admin");
+      router.push("/admin/orders");
     } catch {
       setError("서버 연결에 실패했습니다.");
     } finally {
