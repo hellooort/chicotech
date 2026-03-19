@@ -6,7 +6,7 @@
  */
 (function () {
   // ===== 설정 =====
-  var API_BASE = "http://localhost:3000"; // 배포 후 실제 도메인으로 변경
+  var API_BASE = "https://chicotech.vercel.app";
 
   // ===== 스타일 삽입 =====
   var style = document.createElement("style");
