@@ -110,10 +110,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-slate-400 text-sm mt-6">
-          기본 계정: admin@example.com / admin123
-        </p>
+        
       </div>
     </div>
   );

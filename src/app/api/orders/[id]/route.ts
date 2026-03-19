@@ -87,7 +87,7 @@ export async function PUT(
 
     return NextResponse.json({ order });
   } catch (error) {
-    console.error("Update order error:", error);
+    console.error("Update order error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "주문 수정 중 오류가 발생했습니다." },
       { status: 500 }
@@ -118,7 +118,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Delete order error:", error);
+    console.error("Delete order error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "주문 삭제 중 오류가 발생했습니다." },
       { status: 500 }

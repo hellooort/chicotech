@@ -58,7 +58,7 @@ export async function GET(
       { headers: corsHeaders }
     );
   } catch (error) {
-    console.error("Public order lookup error:", error);
+    console.error("Public order lookup error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { success: false, error: "조회 중 오류가 발생했습니다." },
       { status: 500, headers: corsHeaders }

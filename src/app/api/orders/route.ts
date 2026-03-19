@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
-    console.error("Create order error:", error);
+    console.error("Create order error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "주문 생성 중 오류가 발생했습니다." },
       { status: 500 }

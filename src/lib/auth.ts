@@ -2,7 +2,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET 환경변수가 설정되지 않았습니다.");
+}
 
 export interface JWTPayload {
   id: string;
