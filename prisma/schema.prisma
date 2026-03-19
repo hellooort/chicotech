@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 관리자 계정
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 주문 정보
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique  // 주문번호
+  currentStep     Int      @default(1) // 현재 진행 단계 (1-7)
+  expectedDate    DateTime?          // 예상 완료일
+  memo            String?            // 메모
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// 진행 단계 정의 (관리자가 커스터마이징 가능)
+model Step {
+  id        String   @id @default(cuid())
+  order     Int      @unique  // 단계 순서 (1, 2, 3...)
+  name      String            // 단계명 (예: 주문접수, 제작중...)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
