@@ -251,20 +251,31 @@ export default function OrdersPage() {
     return (
       <>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col className="w-[40px]" />
+              <col className="w-[150px]" />
+              <col className="w-[80px]" />
+              <col style={{ width: "30%" }} />
+              <col />
+              <col className="w-[110px]" />
+              <col className="w-[100px]" />
+              <col style={{ width: "20%" }} />
+              <col className="w-[40px]" />
+            </colgroup>
             <thead>
               <tr className="bg-slate-50">
-                <th className="px-3 py-3 w-10">
+                <th className="px-3 py-3">
                   <input type="checkbox" checked={selectedIds.size === data.length && data.length > 0} onChange={toggleSelectAll} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[150px]">주문번호</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[80px]">주문자명</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[140px]">상품명</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[120px]">옵션</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[110px]">진행 단계</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase w-[100px]">완료일</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">주문번호</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">주문자명</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">상품명</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">옵션</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">진행 단계</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">완료일</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">메모</th>
-                <th className="px-3 py-3 w-10"></th>
+                <th className="px-3 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -277,8 +288,8 @@ export default function OrdersPage() {
                     <span className="font-semibold text-slate-800 text-sm">{order.orderNumber}</span>
                   </td>
                   <td className="px-4 py-3 text-sm text-slate-600">{order.customerName || "-"}</td>
-                  <td className="px-4 py-3 text-sm text-slate-600 truncate max-w-[140px]" title={order.productName || ""}>{order.productName || "-"}</td>
-                  <td className="px-4 py-3 text-sm text-slate-500 truncate max-w-[120px]" title={order.productOption || ""}>{order.productOption || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600 truncate" title={order.productName || ""}>{order.productName || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500 truncate" title={order.productOption || ""}>{order.productOption || "-"}</td>
                   <td className="px-4 py-3">
                     <select
                       value={order.currentStep}
