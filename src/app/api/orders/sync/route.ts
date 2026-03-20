@@ -32,7 +32,7 @@ export async function POST() {
 
     const existingOrders = await prisma.order.findMany({
       where: { orderNumber: { in: orderNumbers } },
-      select: { orderNumber: true, customerName: true, productName: true },
+      select: { orderNumber: true, customerName: true, productName: true, productOption: true },
     });
     const existingSet = new Set(existingOrders.map((o) => o.orderNumber));
 
@@ -44,7 +44,8 @@ export async function POST() {
       const updates: Record<string, string> = {};
       if (!o.customerName && imweb.customerName) updates.customerName = imweb.customerName;
       if (!o.productName && imweb.productName) updates.productName = imweb.productName;
-      if (imweb.productOption) updates.productOption = imweb.productOption;
+      const needOptionUpdate = !o.productOption || o.productOption.trim() === ":" || o.productOption.trim() === "";
+      if (imweb.productOption && needOptionUpdate) updates.productOption = imweb.productOption;
       if (Object.keys(updates).length > 0) {
         await prisma.order.update({ where: { orderNumber: o.orderNumber }, data: updates });
         updated++;

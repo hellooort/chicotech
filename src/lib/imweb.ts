@@ -93,12 +93,25 @@ export async function fetchImwebOrders(startDate?: string, endDate?: string): Pr
             ((po.items as Record<string, unknown>[]) || [])
           );
           productName = items.map((i: Record<string, unknown>) => String(i.prod_name || "")).filter(Boolean).join(", ");
-          const options = items.flatMap((i: Record<string, unknown>) => {
-            const opts = i.options as Record<string, unknown>[] | undefined;
-            if (!opts) return [];
-            return opts.map((opt) => `${opt.name || ""}: ${opt.value || ""}`);
-          });
-          if (options.length > 0) productOption = options.join(", ");
+          const optionParts: string[] = [];
+          for (const item of items) {
+            const optGroups = (item as Record<string, unknown>).options;
+            if (!Array.isArray(optGroups)) continue;
+            for (const group of optGroups) {
+              const entries = Array.isArray(group) ? group : [group];
+              for (const entry of entries) {
+                const e = entry as Record<string, unknown>;
+                const names = (e.option_name_list as string[]) || [];
+                const values = (e.value_name_list as string[]) || [];
+                for (let idx = 0; idx < names.length; idx++) {
+                  const n = names[idx] || "";
+                  const v = values[idx] || "";
+                  if (n || v) optionParts.push(v ? `${n}: ${v}` : n);
+                }
+              }
+            }
+          }
+          if (optionParts.length > 0) productOption = optionParts.join(", ");
         }
       }
     } catch {

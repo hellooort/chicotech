@@ -60,7 +60,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-30 bg-white shadow-sm border-b border-slate-100">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6">
+      <main className="max-w-[1600px] mx-auto px-4 py-6">
         {children}
       </main>
     </div>
