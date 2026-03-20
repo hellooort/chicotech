@@ -24,7 +24,15 @@ export async function GET(request: NextRequest) {
   const steps = await prisma.step.findMany({ orderBy: { order: "asc" } });
   const maxStep = steps.length;
 
-  const searchFilter = search ? { orderNumber: { contains: search } } : {};
+  const searchFilter = search
+    ? {
+        OR: [
+          { orderNumber: { contains: search, mode: "insensitive" as const } },
+          { customerName: { contains: search, mode: "insensitive" as const } },
+          { productOption: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
   const tabFilter = tab === "completed"
     ? { currentStep: { gte: maxStep } }
     : { currentStep: { lt: maxStep } };
