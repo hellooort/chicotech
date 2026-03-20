@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { fetchImwebOrders } from "@/lib/imweb";
+import { fetchImwebOrders, ImwebOrder } from "@/lib/imweb";
 
 export async function POST() {
   const session = await getSession();
@@ -23,60 +23,66 @@ export async function POST() {
       return NextResponse.json({ synced: 0, skipped: 0, total: 0, message: "아임웹에서 가져올 주문이 없습니다." });
     }
 
-    const orderMap = new Map(
-      imwebOrders
-        .filter((o) => o.orderNo.trim().length > 0)
-        .map((o) => [o.orderNo.trim(), o.customerName.trim()])
-    );
+    const orderMap = new Map<string, ImwebOrder>();
+    for (const o of imwebOrders) {
+      const no = o.orderNo.trim();
+      if (no.length > 0) orderMap.set(no, o);
+    }
     const orderNumbers = [...orderMap.keys()];
 
     const existingOrders = await prisma.order.findMany({
       where: { orderNumber: { in: orderNumbers } },
-      select: { orderNumber: true, customerName: true },
+      select: { orderNumber: true, customerName: true, productName: true },
     });
     const existingSet = new Set(existingOrders.map((o) => o.orderNumber));
 
-    // 기존 주문 중 주문자명이 비어있는 것은 업데이트
-    const toUpdate = existingOrders.filter((o) => !o.customerName && orderMap.get(o.orderNumber));
-    for (const o of toUpdate) {
-      await prisma.order.update({
-        where: { orderNumber: o.orderNumber },
-        data: { customerName: orderMap.get(o.orderNumber) },
-      });
+    // 기존 주문 중 빈 필드 업데이트
+    let updated = 0;
+    for (const o of existingOrders) {
+      const imweb = orderMap.get(o.orderNumber);
+      if (!imweb) continue;
+      const updates: Record<string, string> = {};
+      if (!o.customerName && imweb.customerName) updates.customerName = imweb.customerName;
+      if (!o.productName && imweb.productName) updates.productName = imweb.productName;
+      if (imweb.productOption) updates.productOption = imweb.productOption;
+      if (Object.keys(updates).length > 0) {
+        await prisma.order.update({ where: { orderNumber: o.orderNumber }, data: updates });
+        updated++;
+      }
     }
 
     const newOrderNumbers = orderNumbers.filter((n) => !existingSet.has(n));
 
     if (newOrderNumbers.length === 0) {
-      const updated = toUpdate.length;
       return NextResponse.json({
-        synced: 0,
-        skipped: orderNumbers.length,
-        updated,
-        total: orderNumbers.length,
+        synced: 0, skipped: orderNumbers.length, updated, total: orderNumbers.length,
         message: updated > 0
-          ? `새 주문은 없지만, ${updated}건의 주문자명을 업데이트했습니다.`
+          ? `새 주문은 없지만, ${updated}건의 정보를 업데이트했습니다.`
           : "새로운 주문이 없습니다. 모두 이미 등록되어 있어요.",
       });
     }
 
-    await prisma.order.createMany({
-      data: newOrderNumbers.map((orderNumber) => ({
-        orderNumber,
-        customerName: orderMap.get(orderNumber) || null,
-        currentStep: 1,
-      })),
-      skipDuplicates: true,
-    });
+    for (const orderNumber of newOrderNumbers) {
+      const imweb = orderMap.get(orderNumber)!;
+      await prisma.order.create({
+        data: {
+          orderNumber,
+          customerName: imweb.customerName || null,
+          productName: imweb.productName || null,
+          productOption: imweb.productOption || null,
+          currentStep: 1,
+        },
+      });
+    }
 
     return NextResponse.json({
       synced: newOrderNumbers.length,
       skipped: orderNumbers.length - newOrderNumbers.length,
-      total: orderNumbers.length,
+      updated, total: orderNumbers.length,
       message: `${newOrderNumbers.length}건의 새 주문을 등록했습니다.`,
     });
   } catch (error) {
-    console.error("Sync error:", error);
+    console.error("Sync error:", error instanceof Error ? error.message : "unknown");
     const message = error instanceof Error ? error.message : "알 수 없는 오류";
     return NextResponse.json({ error: `싱크 실패: ${message}` }, { status: 500 });
   }

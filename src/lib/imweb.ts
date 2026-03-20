@@ -39,6 +39,8 @@ async function getAccessToken(): Promise<string> {
 export interface ImwebOrder {
   orderNo: string;
   customerName: string;
+  productName: string;
+  productOption: string;
   orderStatus: string;
   orderedAt?: string;
 }
@@ -69,15 +71,49 @@ export async function fetchImwebOrders(startDate?: string, endDate?: string): Pr
     throw new Error(`아임웹 주문 조회 실패: ${data.msg || "unknown error"}`);
   }
 
-  const orders: ImwebOrder[] = (data.data?.list || []).map((o: Record<string, unknown>) => {
-    const orderer = o.orderer as Record<string, unknown> | undefined;
-    return {
-      orderNo: String(o.order_no || o.orderNo || ""),
+  const orderList = data.data?.list || [];
+  const orders: ImwebOrder[] = [];
+
+  for (const o of orderList) {
+    const orderer = (o as Record<string, unknown>).orderer as Record<string, unknown> | undefined;
+    const orderNo = String((o as Record<string, unknown>).order_no || "");
+
+    let productName = "";
+    let productOption = "";
+
+    // 상품 상세 정보 가져오기 (rate limit 주의: 1초 간격)
+    try {
+      const prodRes = await fetch(`${IMWEB_API_BASE}/shop/orders/${orderNo}/prod-orders`, {
+        headers: { "access-token": token },
+      });
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        if (prodData.code === 200 && prodData.data?.length > 0) {
+          const items = prodData.data.flatMap((po: Record<string, unknown>) =>
+            ((po.items as Record<string, unknown>[]) || [])
+          );
+          productName = items.map((i: Record<string, unknown>) => String(i.prod_name || "")).filter(Boolean).join(", ");
+          const options = items.flatMap((i: Record<string, unknown>) => {
+            const opts = i.options as Record<string, unknown>[] | undefined;
+            if (!opts) return [];
+            return opts.map((opt) => `${opt.name || ""}: ${opt.value || ""}`);
+          });
+          if (options.length > 0) productOption = options.join(", ");
+        }
+      }
+    } catch {
+      // 상품 정보 실패해도 주문 자체는 계속 처리
+    }
+
+    orders.push({
+      orderNo,
       customerName: String(orderer?.name || ""),
-      orderStatus: String(o.order_status || o.orderStatus || ""),
-      orderedAt: String(o.ordered_at || o.orderedAt || o.order_time || ""),
-    };
-  });
+      productName,
+      productOption,
+      orderStatus: String((o as Record<string, unknown>).order_status || ""),
+      orderedAt: String((o as Record<string, unknown>).order_time || ""),
+    });
+  }
 
   return orders;
 }

@@ -6,12 +6,9 @@ const prisma = new PrismaClient();
 async function main() {
   // 기본 진행 단계 생성
   const steps = [
-    { order: 1, name: "주문접수" },
-    { order: 2, name: "제작중" },
-    { order: 3, name: "제작완료" },
-    { order: 4, name: "배송준비" },
-    { order: 5, name: "배송중" },
-    { order: 6, name: "배송완료" },
+    { order: 1, name: "신규접수" },
+    { order: 2, name: "첨삭중" },
+    { order: 3, name: "작업완료" },
   ];
 
   for (const step of steps) {

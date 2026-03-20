@@ -25,8 +25,10 @@ model Admin {
 model Order {
   id              String   @id @default(cuid())
   orderNumber     String   @unique  // 주문번호
-  customerName    String?            // 주문자명 (아임웹 연동)
-  currentStep     Int      @default(1) // 현재 진행 단계 (1-6)
+  customerName    String?            // 주문자명
+  productName     String?            // 상품명
+  productOption   String?            // 선택 옵션
+  currentStep     Int      @default(1) // 현재 진행 단계 (1-3)
   expectedDate    DateTime?          // 예상 완료일
   memo            String?            // 메모
   createdAt       DateTime @default(now())
