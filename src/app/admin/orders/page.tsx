@@ -256,10 +256,10 @@ export default function OrdersPage() {
               <col className="w-[40px]" />
               <col className="w-[150px]" />
               <col className="w-[80px]" />
-              <col style={{ width: "30%" }} />
+              <col style={{ width: "27%" }} />
               <col />
               <col className="w-[110px]" />
-              <col className="w-[100px]" />
+              <col style={{ width: "9%" }} />
               <col style={{ width: "20%" }} />
               <col className="w-[40px]" />
             </colgroup>
